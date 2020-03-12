@@ -4,7 +4,7 @@ function createContext(canvas) {
     if (gl) throw "already created gl context";
 
     try {
-        gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        gl = canvas.getContext("webgl2");
     } catch( error ) { throw error; }
     
     if ( !gl ) {
@@ -92,6 +92,24 @@ function createContext(canvas) {
             for (uniform in uniforms) {
                 gl.h.send_uniform_vec(program, uniform, uniforms[uniform])
             }
+        }
+
+        vertexAttribPointer: ( program, { attrib_name, component_count, component_type, normalized, stride, offset } ) => {
+            if (normalized == undefined) {
+                if (component_type == gl.FLOAT || component_type == gl.HALF_FLOAT) {
+                    normalized = false; // doesnt matter
+                } else throw "gl.h.vertexAttribPointer: need to specify `normalized` when component_type is not float.";
+            }
+
+            if (stride == undefined) {
+                stride = 0;
+            }
+
+            if (offset == undefined) {
+                offset = 0;
+            }
+
+
         }
     }
 

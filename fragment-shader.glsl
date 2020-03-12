@@ -1,3 +1,4 @@
+ #version 300 es
 uniform float time;
 uniform vec2 resolution;
 

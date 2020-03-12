@@ -8,10 +8,10 @@ var gl, canvas,
 
 require(['glh', 'text!vertex-shader.glsl', 'text!fragment-shader.glsl'], function (glh, vertex_shader, fragment_shader) {
     var 
-        buffer, 
+        buffer, vao,
         vertex_shader, fragment_shader, 
         currentProgram,
-        vertex_position;
+        vertex_position = 0;
 
     canvas = document.querySelector( 'canvas' );
     gl = glh.createContext(canvas);
@@ -20,14 +20,16 @@ require(['glh', 'text!vertex-shader.glsl', 'text!fragment-shader.glsl'], functio
     animate();
 
     function init() {
-
-
-
         // Create Vertex buffer (2 triangles)
 
         buffer = gl.createBuffer();
         gl.bindBuffer( gl.ARRAY_BUFFER, buffer );
         gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( [ - 1.0, - 1.0, 1.0, - 1.0, - 1.0, 1.0, 1.0, - 1.0, 1.0, 1.0, - 1.0, 1.0 ] ), gl.STATIC_DRAW );
+
+        vao = gl.createVertexArray();
+        gl.bindVertexArray(vao);
+        gl.h.vertexAttribPointer( vertex_position, 2, gl.FLOAT, false, 0, 0 );
+        gl.enableVertexAttribArray( vertex_position );
 
         // Create Program
 
@@ -55,14 +57,10 @@ require(['glh', 'text!vertex-shader.glsl', 'text!fragment-shader.glsl'], functio
 
         gl.h.send_uniforms( currentProgram, uniforms)
 
+
         // Render geometry
-
-        gl.bindBuffer( gl.ARRAY_BUFFER, buffer );
-        gl.vertexAttribPointer( vertex_position, 2, gl.FLOAT, false, 0, 0 );
-        gl.enableVertexAttribArray( vertex_position );
+        gl.bindVertexArray(vao);
         gl.drawArrays( gl.TRIANGLES, 0, 6 );
-        gl.disableVertexAttribArray( vertex_position );
-
     }
 });
 

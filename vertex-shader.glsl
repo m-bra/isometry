@@ -1,3 +1,4 @@
+ #version 300 es
 attribute vec3 position;
  
 void main() {
