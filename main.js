@@ -1,12 +1,12 @@
 
 
 async function main(canvas) {
-    let gl = createContext(canvas);
+    let gl = (await load("gl.h.js")).createContext(canvas);
     gl.clearColor(0, 0, 0, 1);
     
     let program = gl.h.createProgram({sources: {
-        vertexShader:  await load("text!vertex.glsl"),//document.getElementById("vs").text.trim(),
-        fragmentShader: await load("text!fragment.glsl"), //document.getElementById("fs").text.trim()
+        vertexShader:  await load("text!vertex.glsl"),
+        fragmentShader: await load("text!fragment.glsl"),
     }});
     gl.useProgram(program);
     
@@ -44,9 +44,15 @@ async function main(canvas) {
     function frame(timestamp) {
         if (!start)
         start = timestamp;
-        var progress = timestamp - start;
+        var delta_time = timestamp - start;
+
     
         gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.h.send_uniforms(program, {
+            delta_time: [delta_time / 1000],
+            time: [timestamp / 1000]
+        });
 
         gl.bindVertexArray(triangle);
         gl.drawArrays(gl.TRIANGLES, 0, 3);

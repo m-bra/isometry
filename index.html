@@ -19,15 +19,14 @@
 	</style>
 </head>
 <body>
-    <script type="vertex" id="vs">
-
-    </script>
-    <script type="fragment" id="fs">
-
-    </script>
     <canvas id="webgl-canvas"></canvas>
     <script src="require.js"></script>
     <script>
+        require.config({
+            urlArgs: "bust=" + (new Date()).getTime()
+        });
+
+
         async function load(dependency) {
             return new Promise((resolve, reject) => {
                 require([dependency], (result) => {
@@ -36,17 +35,12 @@
             });
         }
         try {
-
             ! async function() {
                 var canvas = document.getElementById("webgl-canvas");
                 canvas.width = canvas.clientWidth;
                 canvas.height = canvas.clientHeight;
 
-                /*require(['main.js', 'gl.h.js'], function() {
-                    main(canvas);
-                });*/
                 await load('main.js');
-                await load('gl.h.js');
                 main(canvas);
             } (); 
         }
