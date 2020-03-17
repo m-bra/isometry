@@ -47,15 +47,20 @@
     <canvas id="webgl-canvas"></canvas>
     <script src="require.js"></script>
     <script> 
-        ! async function() {
-            var canvas = document.getElementById("webgl-canvas");
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-            
-            require(['main.js', 'gl.h.js'], function() {
-                main(canvas);
-            });
-        } (); 
+        try {
+            ! async function() {
+                var canvas = document.getElementById("webgl-canvas");
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+
+                require(['main.js', 'gl.h.js'], function() {
+                    main(canvas);
+                });
+            } (); 
+        }
+        catch(err) {
+            document.body.innerHTML = err.message;
+        }
     </script>
 </body>
 </html>

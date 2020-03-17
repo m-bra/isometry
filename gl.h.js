@@ -14,51 +14,37 @@ function createContext(canvas) {
 
     gl.h = {
         gl: gl,
-        createProgramFromShaders: (vertex, fragment) => {
-            //var gl = this.gl;
+
+        createProgram: ({sources}) => {
+            let vsSource = sources.vertexShader;
+            let fsSource = sources.fragmentShader;
+
+            var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vertexShader, vsSource);
+            gl.compileShader(vertexShader);
+            
+            if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(vertexShader));
+            }
+            
+            var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fragmentShader, fsSource);
+            gl.compileShader(fragmentShader);
+            
+            if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(fragmentShader));
+            }
+            
             var program = gl.createProgram();
-    
-            var vs = gl.h.createShader( vertex, gl.VERTEX_SHADER );
-            var fs = gl.h.createShader( '#ifdef GL_ES\nprecision highp float;\n#endif\n\n' +  fragment, gl.FRAGMENT_SHADER );
-    
-            if ( vs == null || fs == null ) throw "cannot create vertex and/or fragment shader";
-    
-            gl.attachShader( program, vs );
-            gl.attachShader( program, fs );
-    
-            gl.deleteShader( vs );
-            gl.deleteShader( fs );
-    
-            gl.linkProgram( program );
-    
-            if ( !gl.getProgramParameter( program, gl.LINK_STATUS ) ) {
-    
-                throw ( "ERROR:\n" +
-                    "VALIDATE_STATUS: " + gl.getProgramParameter( program, gl.VALIDATE_STATUS ) + "\n" +
-                    "ERROR: " + gl.getError() + "\n\n" +
-                    "- Vertex Shader -\n" + vertex + "\n\n" +
-                    "- Fragment Shader -\n" + fragment );
-    
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error(gl.getProgramInfoLog(program));
             }
-    
+            
             return program;
-        },
-    
-        createShader: ( src, type ) => {
-            //var gl = this.gl;
-            var shader = gl.createShader( type );
-        
-            gl.shaderSource( shader, "#version 300 es\n" + src );
-            gl.compileShader( shader );
-        
-            if ( !gl.getShaderParameter( shader, gl.COMPILE_STATUS ) ) {
-        
-                throw ( ( type == gl.VERTEX_SHADER ? "VERTEX" : "FRAGMENT" ) + " SHADER:\n" + gl.getShaderInfoLog( shader ) );
-        
-            }
-        
-            return shader;
-        
         },
     
         _uniform_map: {},
@@ -95,8 +81,15 @@ function createContext(canvas) {
             }
         },
 
-        // parameters: { attrib_name, component_count, component_type, normalized = false (if component_type == ...), stride = 0, offset = 0, source_buffer }
-        vertexAttribPointer: ( program, vao, parameters) => {
+        // parameters: { 
+        //    attrib_name or attrib_loc, 
+        //    component_count, 
+        //    component_type, normalized = false (if component_type is (half) float), 
+        //    stride = 0, 
+        //    offset = 0, 
+        //    source_buffer (a vbo) or source_array (a Float32Array)
+        //  }
+        vertexAttribute: ( program, vao, parameters) => {
             
             for (let param of parameters) {
                 if (param.normalized == undefined) {
@@ -113,13 +106,24 @@ function createContext(canvas) {
                     param.offset = 0;
                 }
 
+                if (param.source_array !== undefined) {
+                    console.assert(param.source_buffer == undefined);
+                    param.source_buffer = gl.createBuffer();
+                    gl.bindBuffer(gl.ARRAY_BUFFER, param.source_buffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, param.source_array, gl.STATIC_DRAW);
+                }
+
+                if (param.attrib_name !== undefined) {
+                    console.assert(param.attrib_loc == undefined);
+                    param.attrib_loc = gl.getAttribLocation(program, param.attrib_name);
+                }
+
                 if (param.source_buffer == undefined) throw "missing field";
             }
 
             gl.bindVertexArray(vao);
             for (const param of parameters) {
-                const { attrib_name, component_count, component_type, normalized, stride, offset, source_buffer } = param; 
-                const attrib_loc = gl.getAttribLocation(program, attrib_name);
+                const { attrib_loc, component_count, component_type, normalized, stride, offset, source_buffer } = param; 
                 gl.bindBuffer(gl.ARRAY_BUFFER, source_buffer);
                 gl.vertexAttribPointer(attrib_loc, component_count, component_type, normalized, stride, offset);
                 gl.enableVertexAttribArray( attrib_loc );
