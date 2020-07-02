@@ -1,7 +1,8 @@
 #version 300 es
 precision highp float;
 
-in vec3 vColor;
+flat in vec3 vColor;
+flat in int vDiscard;
 out vec4 fragColor;
 
 uniform float delta_time;
@@ -11,11 +12,11 @@ vec3 rgb2hsv(vec3);
 vec3 hsv2rgb(vec3);
 
 void main() {
-    vec3 color = rgb2hsv(vColor);
-    float h = fract(color.x + time + 0.3f);
-    float s = color.y;
-    float v = color.z;
-    fragColor = vec4(hsv2rgb(vec3(h, s, v)), 1.0);
+    float time = time * 10.f;
+    int itime = int(time);
+    if (bool(vDiscard))
+        discard;
+    fragColor = vec4(vColor, 1.0);
 }
 
 // https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl

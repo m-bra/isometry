@@ -1,39 +1,75 @@
 
 async function main(canvas) {
+    // the user enters the local ip given on the phone to this window:
+
+    if (false) {
+        const ip = prompt("Please enter the IP-Adress given on your mobile input device.", "123.456.789.123");
+        // that address does not have to be an ip-adress, but also any url.
+        const url = ip;
+        const connection = new WebSocket(url);
+    
+        connection.onerror = error => {
+            console.log(`WebSocket error: ${error}`)
+            alert(`WebSocket error: ${error}`)
+        };
+    
+        // a connection is coming in.
+        connection.onopen = () => {
+            // In general, the connection must give any prompt I make to the user, and deliver me the correct result.
+            connection.send('jung_year = prompt("Was C. G. Jung born in 1875 or in 1885?")');
+            // the correct answer also implies a bit of intelligence, so either a human or a maintained bot
+        };
+    
+        // a message is coming in.
+        connection.onmessage = event => {
+            const message = event.data;
+            // this is the answer, it has the form ":var:c_ident = :answer:c_string_literal"
+            // i want to process this answer with swirl.
+            // an http swirl service is running at reqf.cf.
+        }
+    
+    }
+    
     let gl = (await load("gl.h.js")).createContext(canvas);
     gl.clearColor(0, 0, 0, 1);
     
     let program = gl.h.createProgram({sources: {
-        vertexShader: await load("text!vertex.glsl"),
-        fragmentShader: await load("text!fragment.glsl"),
+        vertexShader: await load("text!shaders/current/vertex.glsl"),
+        fragmentShader: await load("text!shaders/current/fragment.glsl"),
     }});
     gl.useProgram(program);
     
     let thing = gl.createVertexArray();
-    gl.h.vertexAttribute(program, thing, [
-        { 
-            attrib_name: "position", 
-            component_count: 3, 
-            component_type: gl.FLOAT,
-            source_array: new Float32Array([
-                -0.5, -0.5, -0.5,
-                0.5, -0.5, -0.5,
-                0.0, -0.5, 0.5,
 
-                -0.5, -0.5, -0.5,
-                0.5, -0.5, -0.5,
-                0.0, 0.5, 0.0,
+    let forms_count = 16 * 16;
+    let forms_per_line = 16;
+    gl.h.uniform1i(program, "forms_count", forms_count);
+    gl.h.uniform1i(program, "forms_per_line", forms_per_line);
 
-                -0.5, -0.5, -0.5,
-                0.0, -0.5, 0.5,
-                0.0, 0.5, 0.0,
+    let colors = [];
+    let bitfields = [];
 
-                0.5, -0.5, -0.5,
-                0.0, -0.5, 0.5,
-                0.0, 0.5, 0.0,
-            ])
-        },
-    ]);
+    for (let i = 0; i < forms_count; ++i) {
+        if (Math.random() > 0.5) {
+            colors.push(0.5);
+            colors.push(0.1);
+            colors.push(0.3);
+        } else {
+            colors.push(0.4);
+            colors.push(0.9);
+            colors.push(0.8);
+        }
+
+        let line = Math.floor(i / forms_per_line);
+        if (line % 3 == 0) {
+            bitfields.push(0b111);
+        } else {
+            bitfields.push(0b000);
+        }
+    }
+
+    gl.h.uniform3fv(program, "colors", colors);
+    gl.h.uniform1iv(program, "bitfields", bitfields);
     
     ////////////////
     // DRAW
@@ -55,7 +91,8 @@ async function main(canvas) {
         });
 
         gl.bindVertexArray(thing);
-        gl.drawArrays(gl.TRIANGLES, 0, 3 * 4);
+        // view vertex.glsl -> 2 * 3 * 3 parts per form.
+        gl.drawArrays(gl.TRIANGLES, 0, forms_count * 2 * 3 * 3);
 
         window.requestAnimationFrame(frame);
     }
@@ -63,3 +100,20 @@ async function main(canvas) {
     window.requestAnimationFrame(frame);
 }
 
+function repeat_3fv(x, y, z, count) {
+    var arr = [];
+    for (var i = 0; i < count; i++) {
+        arr.push(x);
+        arr.push(y);
+        arr.push(z);
+    }
+    return arr;
+}
+
+function repeat_1iv(x, count) {
+    var arr = [];
+    for (var i = 0; i < count; i++) {
+        arr.push(x);
+    }
+    return arr;
+}

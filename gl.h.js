@@ -81,6 +81,57 @@ function createContext(canvas) {
             }
         },
 
+        uniform3fv: (program, location, floats ) => {
+            //var gl = this.gl;
+            gl.useProgram(program);
+    
+            var location_i;
+            if (location in gl.h._uniform_map) {
+                location_i = gl.h._uniform_map[location];
+            } else {
+                location_i = gl.getUniformLocation(program, location);
+                gl.h._uniform_map[location] = location_i;
+            }
+
+           // location_i = gl.getUniformLocation(program, location);
+    
+            gl.uniform3fv(location_i, floats);
+        },
+
+        uniform1iv: (program, location, ints ) => {
+            //var gl = this.gl;
+            gl.useProgram(program);
+    
+            var location_i;
+            if (location in gl.h._uniform_map) {
+                location_i = gl.h._uniform_map[location];
+            } else {
+                location_i = gl.getUniformLocation(program, location);
+                gl.h._uniform_map[location] = location_i;
+            }
+
+           // location_i = gl.getUniformLocation(program, location);
+    
+            gl.uniform1iv(location_i, ints);
+        },
+
+        uniform1i: (program, location, i ) => {
+            //var gl = this.gl;
+            gl.useProgram(program);
+    
+            var location_i;
+            if (location in gl.h._uniform_map) {
+                location_i = gl.h._uniform_map[location];
+            } else {
+                location_i = gl.getUniformLocation(program, location);
+                gl.h._uniform_map[location] = location_i;
+            }
+
+           // location_i = gl.getUniformLocation(program, location);
+    
+            gl.uniform1i(location_i, i);
+        },
+
         // parameters: { 
         //    attrib_name or attrib_loc, 
         //    component_count, 

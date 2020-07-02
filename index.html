@@ -20,7 +20,7 @@
 </head>
 <body>
     <canvas id="webgl-canvas"></canvas>
-    <script src="require.js"></script>
+    <script src="./require.js"></script>
     <script>
         require.config({
             urlArgs: "bust=" + (new Date()).getTime()
@@ -40,7 +40,7 @@
                 canvas.width = canvas.clientWidth;
                 canvas.height = canvas.clientHeight;
 
-                await load('main.js');
+                await load('./main.js');
                 main(canvas);
             } (); 
         }
