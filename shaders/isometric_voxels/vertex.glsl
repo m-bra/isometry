@@ -15,7 +15,7 @@ int form_part;
 int current_id;
 
 // assuming that forms_count is small enough
-uniform vec3 colors[1024];
+uniform vec3 colors[2500];
 
 flat out vec3 vColor;
 
@@ -57,20 +57,20 @@ void main() {
     float r = R * cos(M_2PIf / 6.f); // distance from center of triangle to lines
     // counter-clockwise
     triangle(
-        polar(M_2PIf * (.25f + .999f + tilt), R, near),
-        polar(M_2PIf * (.25f + .333f + tilt), R, near),
-        polar(M_2PIf * (.25f + .666f + tilt), R, near)
+        polar(M_2PIf * (.25f + .9999f + tilt), R, near),
+        polar(M_2PIf * (.25f + .3333f + tilt), R, near),
+        polar(M_2PIf * (.25f + .6666f + tilt), R, near)
     );
     float triangle_ystep = R + r;
-    float triangle_xstep = .5f * sin(M_2PIf / 6.f);
+    float triangle_xstep = R * sin(M_2PIf / 6.f);
 
     int lines_count = forms_count / forms_per_line;
     gl_Position.x += float(form_id % forms_per_line) * triangle_xstep;
     gl_Position.y += float(form_id / forms_per_line) * triangle_ystep;
     gl_Position.y += float(form_id % 2) * (R-r);
 
-    gl_Position.x /= 16.f;
-    gl_Position.y /= 16.f * (resolution.y / resolution.x);
+    gl_Position.x /= float(forms_per_line - 1) * triangle_xstep;
+    gl_Position.y /= float(lines_count - 1) * triangle_xstep * (resolution.y / resolution.x);
     gl_Position.xy = (gl_Position.xy * 2.f) - 1.f;
     gl_Position.w = 1.f;
 }

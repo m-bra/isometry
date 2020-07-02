@@ -41,26 +41,27 @@ async function main(canvas) {
     
     let thing = gl.createVertexArray();
 
-    let forms_count = 32 * 32;
-    let forms_per_line = 33;
+    let forms_count = 50 * 50;
+    let forms_per_line = 51;
     gl.h.uniform1i(program, "forms_count", forms_count);
     gl.h.uniform1i(program, "forms_per_line", forms_per_line);
+
 
     let colors = [];
 
     for (let i = 0; i < forms_count; ++i) {
         if (Math.random() > 0.5) {
-            colors.push(0.5);
-            colors.push(0.1);
+            colors.push(0.6);
+            colors.push(0.3);
             colors.push(0.3);
         } else {
-            colors.push(0.4);
-            colors.push(0.9);
-            colors.push(0.8);
+            colors.push(0.6);
+            colors.push(0.6);
+            colors.push(0.3);
         }
     }
 
-    gl.h.uniform3fv(program, "colors", colors);
+    let selcolor = forms_count / 2;
     
     ////////////////
     // DRAW
@@ -81,6 +82,10 @@ async function main(canvas) {
             resolution: [canvas.width, canvas.height],
         });
 
+        colors[Math.floor(Math.random() * forms_count)] = colors[Math.floor(Math.random() * forms_count)];
+    
+        gl.h.uniform3fv(program, "colors", colors);
+
         gl.bindVertexArray(thing);
         // view vertex.glsl -> 2 * 3 * 3 parts per form.
         gl.drawArrays(gl.TRIANGLES, 0, forms_count * 2 * 3 * 3);
@@ -89,6 +94,8 @@ async function main(canvas) {
     }
     
     window.requestAnimationFrame(frame);
+
+
 }
 
 function repeat_3fv(x, y, z, count) {
