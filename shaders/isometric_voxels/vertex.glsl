@@ -8,6 +8,7 @@ uniform vec2 resolution;
 
 uniform int forms_count;
 uniform int forms_per_line;
+uniform int selcolor;
 
 const int parts_per_form = 2 * 3 * 3;
 int form_id;
@@ -52,6 +53,10 @@ void main() {
     const float far = -1.f;
 
     vColor = colors[form_id];
+
+    if (form_id == selcolor)
+        vColor.rgb = vColor.gbr;
+
     float tilt = float(form_id % 2) / 6.f;
     float R = .5f;
     float r = R * cos(M_2PIf / 6.f); // distance from center of triangle to lines

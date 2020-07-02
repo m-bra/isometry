@@ -48,6 +48,12 @@ async function main(canvas) {
 
 
     let colors = [];
+    if (localStorage['colors'])
+        colors = JSON.parse(localStorage['colors']);
+
+    window.onbeforeunload = function(){
+        localStorage['colors'] = JSON.stringify(colors);
+    }
 
     for (let i = 0; i < forms_count; ++i) {
         if (Math.random() > 0.5) {
@@ -82,9 +88,7 @@ async function main(canvas) {
             resolution: [canvas.width, canvas.height],
         });
 
-        colors[Math.floor(Math.random() * forms_count)] = colors[Math.floor(Math.random() * forms_count)];
-    
-        gl.h.uniform3fv(program, "colors", colors);
+        gl.h.uniform1i(program, "selcolor", selcolor);
 
         gl.bindVertexArray(thing);
         // view vertex.glsl -> 2 * 3 * 3 parts per form.
@@ -95,7 +99,43 @@ async function main(canvas) {
     
     window.requestAnimationFrame(frame);
 
-
+    document.addEventListener('keydown', function(event) {
+        switch (event.key) {
+            case "ArrowLeft":
+                selcolor--;
+                break;
+            case "ArrowRight":
+                selcolor++;
+                break;
+            case "ArrowUp":
+                selcolor += forms_per_line;
+                break;
+            case "ArrowDown":
+                selcolor -= forms_per_line;
+                break;
+            case "a":
+                colors[selcolor * 3 + 0] = .2;
+                colors[selcolor * 3 + 1] = .6;
+                colors[selcolor * 3 + 2] = .8;
+                break;
+            case "s":
+                colors[selcolor * 3 + 0] = .6;
+                colors[selcolor * 3 + 1] = .2;
+                colors[selcolor * 3 + 2] = .8;
+                break;
+            case "d":
+                colors[selcolor * 3 + 0] = .6;
+                colors[selcolor * 3 + 1] = .3;
+                colors[selcolor * 3 + 2] = .3;
+                break;
+            case "f":
+                colors[selcolor * 3 + 0] = .6;
+                colors[selcolor * 3 + 1] = .6;
+                colors[selcolor * 3 + 2] = .3;
+                break;
+        }
+        gl.h.uniform3fv(program, "colors", colors);
+    });
 }
 
 function repeat_3fv(x, y, z, count) {
