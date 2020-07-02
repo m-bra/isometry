@@ -2,7 +2,6 @@
 precision highp float;
 
 flat in vec3 vColor;
-flat in int vDiscard;
 out vec4 fragColor;
 
 uniform float delta_time;
@@ -14,8 +13,6 @@ vec3 hsv2rgb(vec3);
 void main() {
     float time = time * 10.f;
     int itime = int(time);
-    if (bool(vDiscard))
-        discard;
     fragColor = vec4(vColor, 1.0);
 }
 

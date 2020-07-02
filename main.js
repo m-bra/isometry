@@ -41,13 +41,12 @@ async function main(canvas) {
     
     let thing = gl.createVertexArray();
 
-    let forms_count = 16 * 16;
-    let forms_per_line = 16;
+    let forms_count = 32 * 32;
+    let forms_per_line = 33;
     gl.h.uniform1i(program, "forms_count", forms_count);
     gl.h.uniform1i(program, "forms_per_line", forms_per_line);
 
     let colors = [];
-    let bitfields = [];
 
     for (let i = 0; i < forms_count; ++i) {
         if (Math.random() > 0.5) {
@@ -59,17 +58,9 @@ async function main(canvas) {
             colors.push(0.9);
             colors.push(0.8);
         }
-
-        let line = Math.floor(i / forms_per_line);
-        if (line % 3 == 0) {
-            bitfields.push(0b111);
-        } else {
-            bitfields.push(0b000);
-        }
     }
 
     gl.h.uniform3fv(program, "colors", colors);
-    gl.h.uniform1iv(program, "bitfields", bitfields);
     
     ////////////////
     // DRAW

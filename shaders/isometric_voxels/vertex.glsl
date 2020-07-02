@@ -14,30 +14,20 @@ int form_id;
 int form_part;
 int current_id;
 
-// assuming that forms_count <= 1024
+// assuming that forms_count is small enough
 uniform vec3 colors[1024];
-uniform int bitfields[1024];
 
 flat out vec3 vColor;
-flat out int vDiscard;
 
 void triangle(vec3 a, vec3 b, vec3 c);
 
 // converts polar/cylinder coords to catesian xyz coords
-// polar.x is angle
-// polar.y is length
-// polar.z is copied to z
-vec3 cylinder_to_xyz(vec3 polar) {
-    polar.x += M_2PIf / 12.f;
+vec3 polar(float angle, float radius, float z) {
     return vec3(
-        cos(polar.x) * polar.y,
-        sin(polar.x) * polar.y,
-        polar.z
+        cos(angle) * radius,
+        sin(angle) * radius,
+        z
     );
-}
-
-void triangle_cyl(vec3 a, vec3 b, vec3 c) {
-    triangle(cylinder_to_xyz(a), cylinder_to_xyz(b), cylinder_to_xyz(c));
 }
 
 // int a = 0b01010101
@@ -62,30 +52,27 @@ void main() {
     const float far = -1.f;
 
     vColor = colors[form_id];
-    for (int side = 0; side < 3; ++side) {
-        float fside = float(side);
-        vDiscard = int(!read_bit(bitfields[form_id], side));
-        // counter-clockwise
-        triangle_cyl(
-            vec3(0, 0, near),
-            vec3(M_2PIf / 3.f * fside, 1.f, mix(near, far, 0.5f)),
-            vec3(M_2PIf / 3.f * (fside+1.f), 1.f, mix(near, far, 0.5f))
-        );
-        triangle_cyl(
-            vec3(M_2PIf / 3.f * (fside + 0.5f), 1.f, far),
-            vec3(M_2PIf / 3.f * (fside+1.f), 1.f, mix(near, far, 0.5f)),
-            vec3(M_2PIf / 3.f * fside, 1.f, mix(near, far, 0.5f))
-        );
-    }
+    float tilt = float(form_id % 2) / 6.f;
+    float R = .5f;
+    float r = R * cos(M_2PIf / 6.f); // distance from center of triangle to lines
+    // counter-clockwise
+    triangle(
+        polar(M_2PIf * (.25f + .999f + tilt), R, near),
+        polar(M_2PIf * (.25f + .333f + tilt), R, near),
+        polar(M_2PIf * (.25f + .666f + tilt), R, near)
+    );
+    float triangle_ystep = R + r;
+    float triangle_xstep = .5f * sin(M_2PIf / 6.f);
 
     int lines_count = forms_count / forms_per_line;
-    int even_line = (form_id / forms_per_line) % 2;
-    gl_Position.x += float(form_id % forms_per_line - forms_per_line / 2) * 2.f * cos(M_2PIf / 12.f);
-    gl_Position.y += float(form_id / forms_per_line - lines_count / 2) * sin(M_2PIf / 12.f);
-    gl_Position.x += float(even_line) * cos(M_2PIf / 12.f);
+    gl_Position.x += float(form_id % forms_per_line) * triangle_xstep;
+    gl_Position.y += float(form_id / forms_per_line) * triangle_ystep;
+    gl_Position.y += float(form_id % 2) * (R-r);
 
-    gl_Position.x /= float(forms_per_line);
-    gl_Position.y /= float(forms_per_line) * (resolution.y / resolution.x);
+    gl_Position.x /= 16.f;
+    gl_Position.y /= 16.f * (resolution.y / resolution.x);
+    gl_Position.xy = (gl_Position.xy * 2.f) - 1.f;
+    gl_Position.w = 1.f;
 }
 
 void triangle(vec3 a, vec3 b, vec3 c) {
