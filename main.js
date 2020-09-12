@@ -7,19 +7,19 @@ async function main(canvas) {
         // that address does not have to be an ip-adress, but also any url.
         const url = ip;
         const connection = new WebSocket(url);
-    
+
         connection.onerror = error => {
             console.log(`WebSocket error: ${error}`)
             alert(`WebSocket error: ${error}`)
         };
-    
+
         // a connection is coming in.
         connection.onopen = () => {
             // In general, the connection must give any prompt I make to the user, and deliver me the correct result.
             connection.send('jung_year = prompt("Was C. G. Jung born in 1875 or in 1885?")');
             // the correct answer also implies a bit of intelligence, so either a human or a maintained bot
         };
-    
+
         // a message is coming in.
         connection.onmessage = event => {
             const message = event.data;
@@ -27,18 +27,18 @@ async function main(canvas) {
             // i want to process this answer with swirl.
             // an http swirl service is running at reqf.cf.
         }
-    
+
     }
-    
+
     let gl = (await load("gl.h.js")).createContext(canvas);
     gl.clearColor(0, 0, 0, 1);
-    
+
     let program = gl.h.createProgram({sources: {
         vertexShader: await load("text!shaders/current/vertex.glsl"),
         fragmentShader: await load("text!shaders/current/fragment.glsl"),
     }});
     gl.useProgram(program);
-    
+
     let thing = gl.createVertexArray();
 
     let forms_count = 50 * 50;
@@ -67,14 +67,14 @@ async function main(canvas) {
         }
     }
 
-    let selcolor = forms_count / 2;
-    
+    let selcolor = forms_count - 50;
+
     ////////////////
     // DRAW
     ////////////////
-    
+
     var start = null;
-    
+
     function frame(timestamp) {
         if (!start)
         start = timestamp;
@@ -96,11 +96,14 @@ async function main(canvas) {
 
         window.requestAnimationFrame(frame);
     }
-    
+
     window.requestAnimationFrame(frame);
 
     document.addEventListener('keydown', function(event) {
         switch (event.key) {
+            case "e":
+                console.log(localStorage['colors']);
+                break;
             case "ArrowLeft":
                 selcolor--;
                 break;
