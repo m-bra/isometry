@@ -41,7 +41,7 @@ async function main(canvas) {
 
     let thing = gl.createVertexArray();
 
-    let texture = await gl.h.send_image("image.bmp");
+    let texture = await gl.h.send_image("image.tif");
 
     let forms_count = 50 * 50;
     let forms_per_line = 51;
