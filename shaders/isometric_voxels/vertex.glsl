@@ -62,7 +62,7 @@ void main() {
     vColor = texelFetch(colors, ivec2(
         form_id / colors_width,
         form_id % colors_width
-    ), 0);
+    ), 0).xyz;
 
     if (form_id == selcolor)
         vColor.rgb = vColor.gbr;
