@@ -207,7 +207,7 @@ function createContext(canvas) {
             };
 
             setTimeout(function() {
-                reject("Timeout: 10 seconds.")
+                reject("send_image('" + filename + ") failed. Timeout: 10 seconds.")
             }, 10*1000);
         }) 
     }    
