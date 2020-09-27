@@ -16,7 +16,7 @@ function createContext(canvas) {
         gl: gl,
 
         /// deprecated.
-        createProgram: (sources) => this.compile(sources),
+        createProgram: (sources) => gl.h.compile(sources),
 
         // returns GPU program id.
         compile: ({sources}) => {
