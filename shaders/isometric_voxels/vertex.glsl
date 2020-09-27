@@ -6,6 +6,9 @@
 uniform float time;
 uniform vec2 resolution;
 
+uniform float camzoom;
+uniform vec2 campos;
+
 uniform int forms_count;
 uniform int forms_per_line;
 uniform int selcolor;
@@ -16,7 +19,11 @@ int form_part;
 int current_id;
 
 // assuming that forms_count is small enough
-uniform vec3 colors[2500];
+//uniform vec3 colors[2500];
+uniform sampler2D colors;
+
+uniform int colors_width;
+uniform int colors_height;
 
 flat out vec3 vColor;
 
@@ -52,7 +59,10 @@ void main() {
     const float near = 0.f;
     const float far = -1.f;
 
-    vColor = colors[form_id];
+    vColor = texelFetch(colors, ivec2(
+        form_id / colors_width,
+        form_id % colors_width
+    ), 0);
 
     if (form_id == selcolor)
         vColor.rgb = vColor.gbr;
@@ -78,6 +88,11 @@ void main() {
     gl_Position.y /= float(lines_count - 1) * triangle_xstep * (resolution.y / resolution.x);
     gl_Position.xy = (gl_Position.xy * 2.f) - 1.f;
     gl_Position.w = 1.f;
+
+    gl_Position.x *= camzoom;
+    gl_Position.y *= camzoom;
+    gl_Position.x += campos.x;
+    gl_Position.y += campos.y;
 }
 
 void triangle(vec3 a, vec3 b, vec3 c) {

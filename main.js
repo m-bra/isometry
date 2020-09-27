@@ -41,6 +41,8 @@ async function main(canvas) {
 
     let thing = gl.createVertexArray();
 
+    let texture = await gl.h.send_image("image.bmp");
+
     let forms_count = 50 * 50;
     let forms_per_line = 51;
     gl.h.uniform1i(program, "forms_count", forms_count);
@@ -74,6 +76,10 @@ async function main(canvas) {
     ////////////////
 
     var start = null;
+    let uniforms = {
+        camzoom: 1.0,
+        campos: [0.0, 0.0]
+    };
 
     function frame(timestamp) {
         if (!start)
@@ -88,7 +94,13 @@ async function main(canvas) {
             resolution: [canvas.width, canvas.height],
         });
 
+        gl.h.send_uniforms(program, uniforms);
+
         gl.h.uniform1i(program, "selcolor", selcolor);
+
+
+        gl.activeTexture(GL_TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
 
         gl.bindVertexArray(thing);
         // view vertex.glsl -> 2 * 3 * 3 parts per form.
@@ -116,22 +128,40 @@ async function main(canvas) {
             case "ArrowDown":
                 selcolor -= forms_per_line;
                 break;
+            case "w":
+                uniforms.campos.y += 1.0;
+                break;
             case "a":
+                uniforms.campos.x -= 1.0;
+                break;
+            case "s":
+                uniforms.campos.y -= 1.0;
+                break;
+            case "d":
+                uniforms.campos.x += 1.0;
+                break;
+            case "e":
+                uniforms.camzoom *= 2.0;
+                break;
+            case "f":
+                uniforms.camzoom /= 2.0;
+                break;
+            case "b":
                 colors[selcolor * 3 + 0] = .2;
                 colors[selcolor * 3 + 1] = .6;
                 colors[selcolor * 3 + 2] = .8;
                 break;
-            case "s":
+            case "x":
                 colors[selcolor * 3 + 0] = .6;
                 colors[selcolor * 3 + 1] = .2;
                 colors[selcolor * 3 + 2] = .8;
                 break;
-            case "d":
+            case "c":
                 colors[selcolor * 3 + 0] = .6;
                 colors[selcolor * 3 + 1] = .3;
                 colors[selcolor * 3 + 2] = .3;
                 break;
-            case "f":
+            case "v":
                 colors[selcolor * 3 + 0] = .6;
                 colors[selcolor * 3 + 1] = .6;
                 colors[selcolor * 3 + 2] = .3;

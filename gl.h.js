@@ -15,7 +15,11 @@ function createContext(canvas) {
     gl.h = {
         gl: gl,
 
-        createProgram: ({sources}) => {
+        /// deprecated.
+        createProgram: (sources) => this.compile(sources),
+
+        // returns GPU program id.
+        compile: ({sources}) => {
             let vsSource = sources.vertexShader;
             let fsSource = sources.fragmentShader;
 
@@ -179,7 +183,33 @@ function createContext(canvas) {
                 gl.vertexAttribPointer(attrib_loc, component_count, component_type, normalized, stride, offset);
                 gl.enableVertexAttribArray( attrib_loc );
             }
-        }
+        },
+
+        // loads image file, promises texture object from GPU
+        send_image: (filename) => new Promise((resolve, reject) => {
+            var image = new Image(); 
+            image.src = filename;
+            image.onload = () => {
+                glActiveTexture(GL_TEXTURE0);
+                let texture = gl.createTexture();
+                gl.bindTexture( gl.TEXTURE_2D, texture );
+                
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+                gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB,
+                    gl.RGB, gl.UNSIGNED_BYTE, image );
+
+                gl.generateMipmap( gl.TEXTURE_2D );
+                gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                                gl.NEAREST_MIPMAP_NEAREST );
+                gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+
+                resolve(texture);
+            };
+
+            setTimeout(function() {
+                reject("Timeout: 10 seconds.")
+            }, 10*1000);
+        }) 
     }    
 
     return gl;
