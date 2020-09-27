@@ -99,7 +99,7 @@ async function main(canvas) {
         gl.h.uniform1i(program, "selcolor", selcolor);
 
 
-        gl.activeTexture(GL_TEXTURE0);
+        gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
         gl.bindVertexArray(thing);

@@ -190,7 +190,7 @@ function createContext(canvas) {
             var image = new Image(); 
             image.src = filename;
             image.onload = () => {
-                glActiveTexture(GL_TEXTURE0);
+                gl.activeTexture(gl.TEXTURE0);
                 let texture = gl.createTexture();
                 gl.bindTexture( gl.TEXTURE_2D, texture );
                 
