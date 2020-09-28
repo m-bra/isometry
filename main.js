@@ -116,9 +116,6 @@ async function main(canvas) {
 
     document.addEventListener('keydown', function(event) {
         switch (event.key) {
-            case "e":
-                console.log(localStorage['colors']);
-                break;
             case "ArrowLeft":
                 selcolor--;
                 break;
