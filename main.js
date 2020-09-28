@@ -47,8 +47,10 @@ async function main(canvas) {
     let forms_per_line = 51;
     gl.h.uniform1i(program, "forms_count", forms_count);
     gl.h.uniform1i(program, "forms_per_line", forms_per_line);
+    gl.h.uniform1i(program, "colors", texture);
 
 
+    /*
     let colors = [];
     if (localStorage['colors'])
         colors = JSON.parse(localStorage['colors']);
@@ -68,6 +70,7 @@ async function main(canvas) {
             colors.push(0.3);
         }
     }
+    */
 
     let selcolor = forms_count - 50;
 
@@ -146,7 +149,7 @@ async function main(canvas) {
             case "f":
                 uniforms.camzoom /= 2.0;
                 break;
-            case "b":
+           /* case "b":
                 colors[selcolor * 3 + 0] = .2;
                 colors[selcolor * 3 + 1] = .6;
                 colors[selcolor * 3 + 2] = .8;
@@ -165,9 +168,9 @@ async function main(canvas) {
                 colors[selcolor * 3 + 0] = .6;
                 colors[selcolor * 3 + 1] = .6;
                 colors[selcolor * 3 + 2] = .3;
-                break;
+                break; */
         }
-        gl.h.uniform3fv(program, "colors", colors);
+        //gl.h.uniform3fv(program, "colors", colors);
     });
 }
 
