@@ -42,12 +42,14 @@ async function main(canvas) {
     let thing = gl.createVertexArray();
 
     let texture = await gl.h.send_image("image.jpg");
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.h.uniform1i(program, "colors", 0);
 
     let forms_count = 50 * 50;
     let forms_per_line = 51;
     gl.h.uniform1i(program, "forms_count", forms_count);
     gl.h.uniform1i(program, "forms_per_line", forms_per_line);
-    gl.h.uniform1i(program, "colors", texture);
 
 
     /*
