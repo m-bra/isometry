@@ -83,7 +83,9 @@ async function main(canvas) {
     var start = null;
     let uniforms = {
         camzoom: 1.0,
-        campos: [0.0, 0.0]
+        campos: [0.0, 0.0],
+        colors_width: 500,
+        colors_height: 500
     };
 
     function frame(timestamp) {
@@ -93,6 +95,8 @@ async function main(canvas) {
 
         gl.clear(gl.COLOR_BUFFER_BIT);
 
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.h.send_uniforms(program, {
             delta_time: [delta_time / 1000],
             time: [timestamp / 1000],

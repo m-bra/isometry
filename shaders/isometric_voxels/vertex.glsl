@@ -9,8 +9,6 @@ uniform vec2 resolution;
 uniform float camzoom;
 uniform vec2 campos;
 
-uniform int forms_count;
-uniform int forms_per_line;
 uniform int selcolor;
 
 const int parts_per_form = 2 * 3 * 3;
@@ -78,7 +76,9 @@ void main() {
     float triangle_ystep = R + r;
     float triangle_xstep = R * sin(M_2PIf / 6.f);
 
-    int lines_count = forms_count / forms_per_line;
+    int forms_per_line = colors_width;
+    int forms_count = colors_width*colors_height;
+    int lines_count = colors_height;
     gl_Position.x += float(form_id % forms_per_line) * triangle_xstep;
     gl_Position.y += float(form_id / forms_per_line) * triangle_ystep;
     gl_Position.y += float(form_id % 2) * (R-r);
