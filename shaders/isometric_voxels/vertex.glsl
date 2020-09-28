@@ -65,7 +65,7 @@ void main() {
     ), 0).xyz;
 
     if (form_id % 2 == 0)
-        vColor.r = 1;
+        vColor.r = 1.f;
 
     float tilt = float(form_id % 2) / 6.f;
     float R = .5f;
