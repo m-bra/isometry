@@ -33,24 +33,21 @@ async function main(canvas) {
     let gl = (await load("gl.h.js")).createContext(canvas);
     gl.clearColor(0, 0, 0, 1);
 
-    let program = gl.h.createProgram({sources: {
-        vertexShader: await load("text!shaders/current/vertex.glsl"),
-        fragmentShader: await load("text!shaders/current/fragment.glsl"),
-    }});
-    gl.useProgram(program);
+    gl.h.program.set(
+        gl.h.compile({sources: {
+            vertexShader: await load("text!shaders/current/vertex.glsl"),
+            fragmentShader: await load("text!shaders/current/fragment.glsl"),
+        }})
+    );
 
     let thing = gl.createVertexArray();
 
-    let texture = await gl.h.send_image("image.jpg");
+    let image = await gl.h.image("image.jpg");
+    let texture = gl.h.send_image(image);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.h.uniform1i(program, "colors", 0);
-
-    let forms_count = 50 * 50;
-    let forms_per_line = 51;
-    gl.h.uniform1i(program, "forms_count", forms_count);
-    gl.h.uniform1i(program, "forms_per_line", forms_per_line);
-
+    gl.h.program.uniform1i("colors", 0);
+    gl.h.program.uniform1i("colors_width", )
 
     /*
     let colors = [];
@@ -74,8 +71,7 @@ async function main(canvas) {
     }
     */
 
-    let selcolor = forms_count - 50;
-
+    let selcolor = 0;
     ////////////////
     // DRAW
     ////////////////
@@ -97,23 +93,20 @@ async function main(canvas) {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.h.send_uniforms(program, {
+
+        gl.h.program.send_uniforms({
             delta_time: [delta_time / 1000],
             time: [timestamp / 1000],
             resolution: [canvas.width, canvas.height],
         });
 
-        gl.h.send_uniforms(program, uniforms);
+        gl.h.program.send_uniforms(uniforms);
 
-        gl.h.uniform1i(program, "selcolor", selcolor);
-
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.h.program.uniform1i("selcolor", selcolor);
 
         gl.bindVertexArray(thing);
         // view vertex.glsl -> 2 * 3 * 3 parts per form.
-        gl.drawArrays(gl.TRIANGLES, 0, forms_count * 2 * 3 * 3);
+        gl.drawArrays(gl.TRIANGLES, 0, 500 * 500 * 2 * 3);
 
         window.requestAnimationFrame(frame);
     }
@@ -173,7 +166,7 @@ async function main(canvas) {
                 colors[selcolor * 3 + 2] = .3;
                 break; */
         }
-        //gl.h.uniform3fv(program, "colors", colors);
+        //gl.h.program.uniform3fv("colors", colors);
     });
 }
 
