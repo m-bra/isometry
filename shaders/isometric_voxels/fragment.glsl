@@ -14,7 +14,7 @@ void main() {
     float time = time * 10.f;
     int itime = int(time);
     fragColor = vec4(vColor, 1.0);
-    fragColor.b = 1;
+    fragColor.b = 1.f;
 }
 
 // https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
