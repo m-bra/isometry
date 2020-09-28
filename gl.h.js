@@ -1,6 +1,10 @@
 
 var gl;
 
+// rule:
+// all functions in .h have, even if nothing else, the advantage of checking for glError().
+// that is, in the beginning and in the end, if there is a glError() reported, it is thrown.
+
 function createContext(canvas) {
     if (gl) throw "already created gl context";
 
@@ -18,8 +22,22 @@ function createContext(canvas) {
         /// deprecated.
         createProgram: (sources) => gl.h.compile(sources),
 
+        /// If there is an error on GPU-side (accessed through OpenGL),
+        /// throw it here.
+        gpu_throws: (context) => {
+            if (context === undefined)
+                context = "";
+
+            let errcode = gl.getError();
+            if (errcode != 0) {
+                throw context + errcode;
+            }
+        },
+
         // returns GPU program id.
         compile: ({sources}) => {
+            gl.h.gpu_throws("before gl.h.compile(...)");
+
             let vsSource = sources.vertexShader;
             let fsSource = sources.fragmentShader;
 
@@ -48,12 +66,15 @@ function createContext(canvas) {
                 console.error(gl.getProgramInfoLog(program));
             }
             
+            gl.h.gpu_throws("after gl.h.compile(...) => GPUProgram " + program);
             return program;
         },
     
         _uniform_map: {},
     
         send_uniform_vec: ( program, location, floats ) => {
+            gl.h.gpu_throws("before send_uniform_vec(" + program + ", " + location + ", ...)");
+
             //var gl = this.gl;
             gl.useProgram(program);
     
@@ -76,16 +97,24 @@ function createContext(canvas) {
             } else if (floats.length == 4) {
                 gl.uniform4f(location_i, floats[0], floats[1], floats[2], floats[3]);
             }
+
+            gl.h.gpu_throws("after send_uniform_vec(" + program + ", " + location + ", ...)");
         },
 
         send_uniforms: ( program, uniforms ) => {
+            gl.h.gpu_throws("before send_uniforms(" + program + ", ...)");
+
             //var gl = this.gl;
             for (uniform in uniforms) {
                 gl.h.send_uniform_vec(program, uniform, uniforms[uniform])
             }
+
+            gl.h.gpu_throws("after send_uniforms(" + program + ", ...)");
         },
 
         uniform3fv: (program, location, floats ) => {
+            gl.h.gpu_throws("before uniform3fv(" + program + ", " + location + ", ...)");
+
             //var gl = this.gl;
             gl.useProgram(program);
     
@@ -100,9 +129,35 @@ function createContext(canvas) {
            // location_i = gl.getUniformLocation(program, location);
     
             gl.uniform3fv(location_i, floats);
+
+            gl.h.gpu_throws("after uniform3fv(" + program + ", " + location + ", ...)");
         },
 
+        uniform3iv: (program, location, ints ) => {
+            gl.h.gpu_throws("before uniform3iv(" + program + ", " + location + ", ...)");
+
+            //var gl = this.gl;
+            gl.useProgram(program);
+    
+            var location_i;
+            if (location in gl.h._uniform_map) {
+                location_i = gl.h._uniform_map[location];
+            } else {
+                location_i = gl.getUniformLocation(program, location);
+                gl.h._uniform_map[location] = location_i;
+            }
+
+           // location_i = gl.getUniformLocation(program, location);
+    
+            gl.uniform3iv(location_i, ints);
+
+            gl.h.gpu_throws("after uniform3iv(" + program + ", " + location + ", ...)");
+        },
+
+
         uniform1iv: (program, location, ints ) => {
+            gl.h.gpu_throws("before uniform1iv(" + program + ", " + location + ", ...)");
+
             //var gl = this.gl;
             gl.useProgram(program);
     
@@ -117,9 +172,13 @@ function createContext(canvas) {
            // location_i = gl.getUniformLocation(program, location);
     
             gl.uniform1iv(location_i, ints);
+
+            gl.h.gpu_throws("before uniform1iv(" + program + ", " + location + ", ...)");
         },
 
         uniform1i: (program, location, i ) => {
+            gl.h.gpu_throws("before uniform1i(" + program + ", " + location + ", " + i + ")");
+
             //var gl = this.gl;
             gl.useProgram(program);
     
@@ -134,6 +193,8 @@ function createContext(canvas) {
            // location_i = gl.getUniformLocation(program, location);
     
             gl.uniform1i(location_i, i);
+
+            gl.h.gpu_throws("after uniform1i(" + program + ", " + location + ", " + i + ")");
         },
 
         // parameters: { 
@@ -145,6 +206,7 @@ function createContext(canvas) {
         //    source_buffer (a vbo) or source_array (a Float32Array)
         //  }
         vertexAttribute: ( program, vao, parameters) => {
+            gl.h.gpu_throws("before vertexAttribute(" + program + ", " + vao + ", ...)");
             
             for (let param of parameters) {
                 if (param.normalized == undefined) {
@@ -183,10 +245,14 @@ function createContext(canvas) {
                 gl.vertexAttribPointer(attrib_loc, component_count, component_type, normalized, stride, offset);
                 gl.enableVertexAttribArray( attrib_loc );
             }
+
+            gl.h.gpu_throws("after vertexAttribute(" + program + ", " + vao + ", ...)");
         },
 
         // loads image file, promises texture object from GPU
         send_image: (filename) => new Promise((resolve, reject) => {
+            gl.h.gpu_throws("before send_image(" + filename + ")");
+
             var image = new Image(); 
             image.src = filename;
             image.onload = () => {
@@ -202,6 +268,8 @@ function createContext(canvas) {
                 gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
                                 gl.NEAREST_MIPMAP_NEAREST );
                 gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+
+                gl.h.gpu_throws("after await send_image(" + filename + ") => " + texture);
 
                 resolve(texture);
             };
